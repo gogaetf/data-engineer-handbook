@@ -1,14 +1,17 @@
 WITH user_devices_selected AS (
+    -- select last day in the month
     SELECT
         *
     FROM user_devices_cumulated
     WHERE date = DATE('2023-01-31')
 ),
      date_series AS (
+         -- supporting table for series of dates in the month
          SELECT *
          FROM generate_series(DATE('2023-01-01'), DATE('2023-01-31'), INTERVAL '1 day') AS series_date
      ),
     expand_series_for_int AS(
+        -- assign a bit value when day of the month had activity
         SELECT
             user_id,
             device_id,
@@ -25,6 +28,7 @@ WITH user_devices_selected AS (
         CROSS JOIN date_series
     ),
     collapse_series_for_int_with_bit AS(
+        -- collapse all bit values into a single integer + convert into bit(32)
         SELECT
             user_id,
             device_id,
