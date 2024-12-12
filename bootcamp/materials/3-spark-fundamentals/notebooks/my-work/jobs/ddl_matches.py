@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS bootcamp.matches (
     map_variant_id STRING
 )
 USING iceberg
-PARTITIONED BY (bucket(4, match_id))
+PARTITIONED BY (is_team_game, completion_date, bucket(4, match_id))
 
 """
 
