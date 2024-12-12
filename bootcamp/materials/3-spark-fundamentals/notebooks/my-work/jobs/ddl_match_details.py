@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS bootcamp.match_details (
     team_id LONG
 )
 USING iceberg
-PARTITIONED BY (bucket(4, match_id))
+PARTITIONED BY (team_id, bucket(4, match_id))
 
 """
 
