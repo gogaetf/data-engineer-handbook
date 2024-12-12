@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 
 query_drop = """
 
-DROP TABLE IF EXISTS bootcamp.maps
+DROP TABLE PURGE IF EXISTS bootcamp.maps
 
 """
 
