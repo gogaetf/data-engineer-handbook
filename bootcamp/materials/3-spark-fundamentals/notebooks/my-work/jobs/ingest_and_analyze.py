@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import broadcast
+from pyspark.sql.functions import broadcast, countDistinct, col
 from ddl_maps import ddl_maps
 from ddl_match_details import ddl_match_details
 from ddl_matches import ddl_matches
@@ -31,7 +31,7 @@ def main():
     ddl_matches(spark)
     ddl_medals_matches_players(spark)
     ddl_medals(spark)
-    spark.sql("SHOW TABLES IN bootcamp").show()
+    # spark.sql("SHOW TABLES IN bootcamp").show()
 
     maps_df = read_maps(spark, '../data/maps.csv')
     match_details_df = read_match_details(spark, '../data/match_details.csv')
@@ -39,6 +39,10 @@ def main():
     medals_matches_players_df = read_medals_matches_players(spark, '../data/medals_matches_players.csv')
     medals_df = read_medals(spark, '../data/medals.csv')
 
+    match_details_df.repartition("team_id") \
+        .sortWithinPartitions(col("player_gamertag"))
+    matches_df.repartition("is_team_game", "completion_date") \
+        .sortWithinPartitions(col("mapid"))
 
     maps_df.select(maps_df.columns).write.format("iceberg").mode("overwrite") \
         .saveAsTable("bootcamp.maps")
@@ -56,20 +60,73 @@ def main():
     spark.conf.set("spark.sql.autoBroadcastJoinThreshold", "-1")
 
     # broadcast join matches and maps
-    matches_maps_join_df = matches_df.join(
-        broadcast(maps_df),
-        maps_df("mapid")==matches_df("left")
-        ).show()
-
+    matches_maps_join_df = matches_df.join(broadcast(maps_df.alias("maps")), "mapid", "left") \
+        .drop("maps.mapid") \
+        .withColumnRenamed("description", "map_description") \
+        .withColumnRenamed("name", "map_name")
+    # matches_maps_join_df.printSchema()
+    # matches_maps_join_df.show()
     # matches_maps_join_df.explain()
 
     # broadcast join medals_matches_players and medals
-    medals_matches_players_medals_join_df = medals_matches_players_df.join(
-        broadcast(medals_df),
-        medals_df("mapid")==medals_matches_players_df("left")
-        ).show()
-
+    medals_matches_players_medals_join_df = \
+        medals_matches_players_df.join(broadcast(medals_df.alias("medals")), "medal_id", "left") \
+            .drop("medals.medal_id") \
+            .withColumnRenamed("description", "medal_description") \
+            .withColumnRenamed("name", "medal_name")
+    # medals_matches_players_medals_join_df.printSchema()
+    # medals_matches_players_medals_join_df.show()
     # medals_matches_players_medals_join_df.explain()
+
+    # bucket join of all dataframes
+    mid_join_df = matches_maps_join_df.join(
+        match_details_df.alias("match_details"), "match_id", "left") \
+        .drop("match_details.match_id")
+    # mid_join_df.printSchema()
+
+    large_join_df = mid_join_df.join(
+        medals_matches_players_medals_join_df.drop("player_gamertag").alias("medals_matches_players"),
+        "match_id",
+        "left"
+        ).drop("medals_matches_players.match_id")
+    # large_join_df.printSchema()
+    # large_join_df.show()
+
+    total_kills_per_player = large_join_df.groupBy("player_gamertag", "match_id")\
+        .avg("player_total_kills") \
+        .withColumnRenamed("avg(player_total_kills)", "player_total_kills") \
+        .groupBy("player_gamertag") \
+        .avg("player_total_kills") \
+        .withColumnRenamed("avg(player_total_kills)", "avg_player_total_kills") \
+        .orderBy("avg_player_total_kills", ascending=False)
+    print("Which player averages the most kills per game?")
+    total_kills_per_player.show()
+    # total_kills_per_player.explain()
+
+    playlist_most_played = large_join_df.groupBy("playlist_id") \
+        .agg(countDistinct("match_id")) \
+        .withColumnRenamed("count(DISTINCT match_id)", "num_matches") \
+        .orderBy("num_matches", ascending=False)
+    print("Which playlist gets played the most?")
+    playlist_most_played.show()
+    # playlist_most_played.explain()
+
+    map_most_played = large_join_df.groupBy("mapid") \
+        .agg(countDistinct("match_id")) \
+        .withColumnRenamed("count(DISTINCT match_id)", "num_matches") \
+        .orderBy("num_matches", ascending=False)
+    print("Which map gets played the most?")
+    map_most_played.show()
+    # map_most_played.explain()
+
+    map_most_selected_medal = large_join_df.where(large_join_df["medal_name"]=="Killing Spree") \
+        .groupBy("mapid", "medal_id", "medal_name") \
+        .agg(countDistinct("match_id")) \
+        .withColumnRenamed("count(DISTINCT match_id)", "num_matches") \
+        .orderBy("num_matches", ascending=False)
+    print("Which map do players get the most Killing Spree medals on?")
+    map_most_selected_medal.show()
+    # map_most_selected_medal.explain()
 
     spark.stop()
 
