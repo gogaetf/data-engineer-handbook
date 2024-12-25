@@ -4,7 +4,7 @@ SELECT
 FROM events;
 
 -- DROP TABLE IF EXISTS users_cumulated;
-
+--
 -- CREATE TABLE users_cumulated (
 --     user_id text,
 --     -- The list of dates in the past where the user was active
@@ -13,7 +13,7 @@ FROM events;
 --     date DATE,
 --     PRIMARY KEY (user_id, date)
 -- );
-
+--
 -- INSERT INTO users_cumulated
 -- WITH yesterday AS (
 --     SELECT
