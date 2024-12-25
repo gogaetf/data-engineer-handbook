@@ -31,3 +31,5 @@ CREATE TABLE IF NOT EXISTS processed_events_session_aggregated (
     host VARCHAR,
     num_hits BIGINT
 );
+
+
