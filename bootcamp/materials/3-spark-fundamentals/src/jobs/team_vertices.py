@@ -8,29 +8,29 @@ WITH teams_deduped AS (
 )
 SELECT
     team_id AS identifier,
-    CAST('team' as STRING) AS `type`,
-    map(
+    'team' AS vertex_type,
+    to_json(named_struct(
         'abbreviation', abbreviation,
         'nickname', nickname,
         'city', city,
         'arena', arena,
-        'year_founded', CAST(yearfounded AS STRING)
-        ) AS properties
+        'year_founded', yearfounded
+        )) AS properties
 FROM teams_deduped
 WHERE row_num = 1
 
 """
 
 
-def do_team_vertex_transformation(spark, dataframe):
+def do_team_vertices_transformation(spark, dataframe):
     dataframe.createOrReplaceTempView("teams")
     return spark.sql(query)
 
 
 def main():
     spark = SparkSession.builder \
-        .master("local") \
-        .appName("players_scd") \
-        .getOrCreate()
-    output_df = do_team_vertex_transformation(spark, spark.table("players"))
-    output_df.write.mode("overwrite").insertInto("players_scd")
+      .master("local") \
+      .appName("team_vertices") \
+      .getOrCreate()
+    output_df = do_team_vertices_transformation(spark, spark.table("teams"))
+    output_df.write.mode("overwrite").insertInto("vertices")
