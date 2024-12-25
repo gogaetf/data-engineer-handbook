@@ -1,13 +1,15 @@
---
--- CREATE TABLE array_metrics (
---     user_id NUMERIC,
---     month_start DATE,
---     metric_name TEXT,
---     metric_array REAL[],
---     PRIMARY KEY (user_id, month_start, metric_name)
--- )
+--drop table IF EXISTS array_metrics;
 
--- DELETE FROM array_metrics;
+DELETE FROM array_metrics;
+
+ CREATE TABLE array_metrics (
+     user_id NUMERIC,
+     month_start DATE,
+     metric_name TEXT,
+     metric_array REAL[],
+     PRIMARY KEY (user_id, month_start, metric_name)
+ )
+
 
 -- INSERT INTO array_metrics
 -- WITH daily_aggregate AS (
@@ -17,7 +19,7 @@
 --         count(1) AS num_site_hits
 --     FROM
 --         events
---     WHERE DATE(event_time) = DATE('2023-01-03')
+--     WHERE DATE(event_time) = DATE('2023-01-31')
 --     AND user_id IS NOT NULL
 --     GROUP BY
 --         user_id,
@@ -28,7 +30,7 @@
 --             *
 --         FROM
 --             array_metrics
---         WHERE month_start = DATE('2023-01-01')
+--         WHERE month_start = DATE('2023-01-02')
 --     )
 -- SELECT
 --     coalesce(da.user_id, ya.user_id) AS user_id,

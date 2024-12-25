@@ -314,7 +314,7 @@ with last_season_scd AS (
             on ls.player_name = ts.player_name
         where ls.player_name is null
     )
-select * from (select *, 'historical' as typeh
+select union_s.* from (select *, 'historical' as typeh
                from historical_scd
                union all
                select *, 'unchanged' as typeh
@@ -324,9 +324,8 @@ select * from (select *, 'historical' as typeh
                from unnested_changed_records
                union all
                select *, 'new' as typeh
-               from new_records)
-order by player_name, start_season;
-;
+               from new_records) as union_s
+order by union_s.player_name, union_s.start_season;
 
 
 

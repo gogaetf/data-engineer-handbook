@@ -10,6 +10,8 @@ FROM game_details
 GROUP BY 1, 2, 3
 HAVING COUNT(1) > 1;
 
+--drop table if exists  fct_game_details;
+
 -- CREATE TABLE fct_game_details (
 --     dim_game_date DATE,
 --     dim_season INTEGER,

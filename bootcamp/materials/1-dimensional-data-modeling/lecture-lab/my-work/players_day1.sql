@@ -1,5 +1,7 @@
 SELECT * FROM player_seasons;
 
+--drop type season_stats;
+
 -- create type season_stats as (
 --     season integer,
 --     gp integer,
@@ -8,22 +10,25 @@ SELECT * FROM player_seasons;
 --     ast real
 --     );
 
+
+--drop type scoring_class;
+
 -- create type scoring_class as enum ('star', 'good', 'average', 'bad');
---
--- create table players(
---     player_name text,
---     height text,
---     college text,
---     country text,
---     draft_year text,
---     draft_round text,
---     draft_number text,
---     season_stats season_stats[],
---     scoring_class scoring_class,
---     years_since_last_season integer,
---     current_season integer,
---     primary key (player_name, current_season)
--- );
+
+ create table players(
+     player_name text,
+     height text,
+     college text,
+     country text,
+     draft_year text,
+     draft_round text,
+     draft_number text,
+     season_stats season_stats[],
+     scoring_class scoring_class,
+     years_since_last_season integer,
+     current_season integer,
+     primary key (player_name, current_season)
+ );
 
 -- drop table players;
 

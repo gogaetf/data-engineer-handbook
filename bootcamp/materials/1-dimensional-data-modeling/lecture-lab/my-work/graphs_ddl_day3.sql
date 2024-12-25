@@ -1,7 +1,7 @@
 create type vertex_type
     as enum('player', 'team', 'game');
 
-drop table if exists vertices;
+--drop table if exists vertices;
 
 create table vertices(
     identifier text,
@@ -12,6 +12,8 @@ create table vertices(
 
 create type edge_type
     as enum('plays_against', 'shares_team', 'plays_in', 'plays_on');
+
+--drop table if exists edges;
 
 create table edges (
     subject_identifier text,
