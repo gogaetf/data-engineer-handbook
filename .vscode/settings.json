@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "host.docker.internal",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "host.docker.internal",
+            "database": "postgres",
+            "username": "postgres"
+        }
+    ]
+}
