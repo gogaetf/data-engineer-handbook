@@ -1,3 +1,4 @@
+-- Active: 1735323009064@@host.docker.internal@5432@postgres@public
 -- what percentage of users that got to the signup page actually signed up?
 -- will be done without window functions, but with a self join
 
