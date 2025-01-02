@@ -33,7 +33,7 @@ In 2024, Google Podcasts was merged into YouTube Music. As someone who uses two 
 
 **Test Cell Allocation:**
 * 50%: Standard queue functionality.
-5* 0%: New “Podcast Queue” feature.
+* 50%: New “Podcast Queue” feature.
 
 ## Experiment 3: Reordering Podcast Ribbons
 **Objective:** Currently, when users click the podcast button, two ribbons appear at the top:
